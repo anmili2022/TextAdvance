@@ -38,10 +38,11 @@ public unsafe class TextAdvance : IDalamudPlugin
     public NavmeshManager NavmeshManager;
     public Queue<Element> QueuedSplatoonElements = [];
 
-    public string Name => "TextAdvance";
+    public string Name => "TextAdvance汉化版";
 
     public void Dispose()
     {
+        Svc.PluginInterface.UiBuilder.OpenConfigUi -= EzConfigGui.Open;
         Svc.Commands.RemoveHandler("/at");
         Safe(ExecSkipTalk.Shutdown);
         Safe(ExecPickReward.Shutdown);
@@ -51,52 +52,61 @@ public unsafe class TextAdvance : IDalamudPlugin
 
     public TextAdvance(IDalamudPluginInterface pluginInterface)
     {
-        P = this;
-        ECommonsMain.Init(pluginInterface, this, Module.SplatoonAPI);
-        new TickScheduler(delegate
+        try
         {
-            EzConfig.Migrate<Config>();
-            this.Config = EzConfig.Init<Config>();
-            new EzFrameworkUpdate(this.Tick);
-            new EzLogout(this.Logout);
-            ProperOnLogin.RegisterAvailable(this.Login);
-            this.SplatoonHandler = new();
-            Svc.Commands.AddHandler("/at", new CommandInfo(this.HandleCommand)
+            P = this;
+            ECommonsMain.Init(pluginInterface, this, Module.SplatoonAPI);
+            new TickScheduler(delegate
             {
-                ShowInHelp = true,
-                HelpMessage = """
-                toggles TextAdvance plugin.\n/at y|yes|e|enable - turns on TextAdvance.
-                /at n|no|d|disable - turns off TextAdvance.
-                /at c|config|s|settings - opens TextAdvance settings.
-                /at g - toggles visual quest target markers
-                /at mtq - move to the first available quest location, if present (requires navmesh integration to be enabled)
-                /at mtqstop - cancel all pending movement tasks
-                /at mtf - move to flag
-                """
-            });
-            if (Svc.ClientState.IsLoggedIn)
-            {
-                this.LoggedIn = true;
-            }
+                EzConfig.Migrate<Config>();
+                this.Config = EzConfig.Init<Config>();
+                Svc.PluginInterface.UiBuilder.OpenConfigUi += EzConfigGui.Open;
+                new EzFrameworkUpdate(this.Tick);
+                new EzLogout(this.Logout);
+                ProperOnLogin.RegisterAvailable(this.Login);
+                this.SplatoonHandler = new();
+                Svc.Commands.AddHandler("/at", new CommandInfo(this.HandleCommand)
+                {
+                    ShowInHelp = true,
+                    HelpMessage = """
+                    toggles TextAdvance plugin.\n/at y|yes|e|enable - turns on TextAdvance.
+                    /at n|no|d|disable - turns off TextAdvance.
+                    /at c|config|s|settings - opens TextAdvance settings.
+                    /at g - toggles visual quest target markers
+                    /at mtq - move to the first available quest location, if present (requires navmesh integration to be enabled)
+                    /at mtqstop - cancel all pending movement tasks
+                    /at mtf - move to flag
+                    """
+                });
+                if (Svc.ClientState.IsLoggedIn)
+                {
+                    this.LoggedIn = true;
+                }
 
-            this.TerritoryNames = Svc.Data.GetExcelSheet<TerritoryType>().Where(x => x.PlaceName.ValueNullable?.Name.ToString().Length > 0)
-            .ToDictionary(
-                x => x.RowId,
-                x => $"{x.RowId} | {x.PlaceName.ValueNullable?.Name}{(x.ContentFinderCondition.ValueNullable?.Name.ToString().Length > 0 ? $" ({x.ContentFinderCondition.ValueNullable?.Name})" : string.Empty)}");
-            this.BlockList = Svc.PluginInterface.GetOrCreateData<HashSet<string>>(BlockListNamespace, () => []);
-            this.BlockList.Clear();
-            AutoCutsceneSkipper.Init(this.CutsceneSkipHandler);
-            this.TaskManager = new()
-            {
-                AbortOnTimeout = true,
-            };
-            new EzTerritoryChanged(this.ClientState_TerritoryChanged);
-            ExecSkipTalk.Init();
-            ExecPickReward.Init();
-            this.NavmeshManager = new();
-            SingletonServiceManager.Initialize(typeof(ServiceManager));
-            EzIPC.OnSafeInvocationException += this.EzIPC_OnSafeInvocationException;
-        });
+                this.TerritoryNames = Svc.Data.GetExcelSheet<TerritoryType>().Where(x => x.PlaceName.ValueNullable?.Name.ToString().Length > 0)
+                .ToDictionary(
+                    x => x.RowId,
+                    x => $"{x.RowId} | {x.PlaceName.ValueNullable?.Name}{(x.ContentFinderCondition.ValueNullable?.Name.ToString().Length > 0 ? $" ({x.ContentFinderCondition.ValueNullable?.Name})" : string.Empty)}");
+                this.BlockList = Svc.PluginInterface.GetOrCreateData<HashSet<string>>(BlockListNamespace, () => []);
+                this.BlockList.Clear();
+                AutoCutsceneSkipper.Init(this.CutsceneSkipHandler);
+                this.TaskManager = new()
+                {
+                    AbortOnTimeout = true,
+                };
+                new EzTerritoryChanged(this.ClientState_TerritoryChanged);
+                ExecSkipTalk.Init();
+                ExecPickReward.Init();
+                this.NavmeshManager = new();
+                SingletonServiceManager.Initialize(typeof(ServiceManager));
+                EzIPC.OnSafeInvocationException += this.EzIPC_OnSafeInvocationException;
+            });
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            throw;
+        }
     }
 
     private void EzIPC_OnSafeInvocationException(Exception obj)
@@ -112,7 +122,7 @@ public unsafe class TextAdvance : IDalamudPlugin
 
     private bool CutsceneSkipHandler(nint ptr)
     {
-        if (Svc.ClientState.TerritoryType.EqualsAny(670u))
+        if (Svc.ClientState.TerritoryType.EqualsAny((ushort)670))
         {
             if (TryGetAddonByName<AtkUnitBase>("FadeMiddle", out var addon) && addon->IsVisible) return false;
         }

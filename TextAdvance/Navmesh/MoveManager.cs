@@ -33,17 +33,17 @@ public unsafe class MoveManager
     public void MoveToFlag()
     {
         if (!Player.Available) return;
-        if (AgentMap.Instance()->IsFlagMarkerSet == false)
+        if (AgentMap.Instance()->FlagMarkerCount == 0)
         {
             DuoLog.Warning($"Flag is not set");
             return;
         }
-        if (AgentMap.Instance()->FlagMapMarker.TerritoryId != Svc.ClientState.TerritoryType)
+        if (AgentMap.Instance()->FlagMapMarkers[0].TerritoryId != Svc.ClientState.TerritoryType)
         {
             DuoLog.Warning($"Flag is in different zone than current");
             return;
         }
-        var m = AgentMap.Instance()->FlagMapMarker;
+        var m = AgentMap.Instance()->FlagMapMarkers[0];
         var pos = P.NavmeshManager.PointOnFloor(new(m.XFloat, 1024, m.YFloat), false, 5);
         var iterations = 0;
         if (pos == null)
@@ -383,7 +383,7 @@ public unsafe class MoveManager
 
     public void SpecialAdjust(MoveData data)
     {
-        if (Player.Territory == 212) //adjust for walking sands
+        if (Player.Territory.RowId == 212) //adjust for walking sands
         {
             if (Player.Position.X < 24.5f && data.Position.X > 24.5f)
             {
@@ -400,7 +400,7 @@ public unsafe class MoveManager
                 data.Position = new(25.5f, 2.1f, -0.0f);
             }
         }
-        else if (Player.Territory == 351) //rising stones
+        else if (Player.Territory.RowId == 351) //rising stones
         {
             if (Player.Position.Z < -28.0f && data.Position.Z > -28.0f)
             {

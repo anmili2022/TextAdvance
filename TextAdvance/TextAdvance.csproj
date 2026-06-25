@@ -13,7 +13,7 @@
 		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
 		<AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
 		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-		<OutputPath>bin\$(Configuration)\</OutputPath>
+		<OutputPath>..\output\$(Configuration)\</OutputPath>
 		<NoWarn>CS1591;CS8632</NoWarn>
 	</PropertyGroup>
 
@@ -23,16 +23,12 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<DalamudLibPath>$(appdata)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
+		<DalamudLibPath>$(appdata)\XIVLauncherCN\addon\Hooks\dev\</DalamudLibPath>
 	</PropertyGroup>
 
 	<ItemGroup>
 	  <PackageReference Include="DalamudPackager" Version="2.1.13" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
-	  <ProjectReference Include="..\NightmareUI\NightmareUI\NightmareUI.csproj" />
+	  <PackageReference Include="ECommons" Version="3.2.1.15" />
 	</ItemGroup>
 
 	<ItemGroup>

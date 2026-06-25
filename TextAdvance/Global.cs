@@ -20,5 +20,5 @@ global using static ECommons.GenericHelpers;
 global using static TextAdvance.TextAdvance;
 global using CSFramework = FFXIVClientStructs.FFXIV.Client.System.Framework.Framework;
 global using S = TextAdvance.Services.ServiceManager;
-global using Player = ECommons.GameHelpers.LegacyPlayer.Player;
+global using Player = ECommons.GameHelpers.Player;
 global using ECommons.DalamudServices.Legacy;

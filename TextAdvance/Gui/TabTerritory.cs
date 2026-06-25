@@ -9,24 +9,23 @@ internal static class TabTerritory
     private static string Filter = string.Empty;
     internal static void Draw()
     {
-        ImGui.Checkbox("Global enable overrides local settings", ref C.GlobalOverridesLocal);
-        ImGuiEx.TextWrapped("If this checkbox is checked, when enabling plugin with /at command per area settings will become irrelevant " +
-            "and global settings will be used.\nOtherwise per area settings will always be used, regardless of plugin's global state.");
-        ImGuiEx.Text("Current plugin state: globally ");
+        ImGui.Checkbox(Loc.GlobalEnableOverridesLocal, ref C.GlobalOverridesLocal);
+        ImGuiEx.TextWrapped(Loc.GlobalEnableOverridesLocalHelp);
+        ImGuiEx.Text(Loc.CurrentPluginStateGlobal);
         ImGui.SameLine(0, 0);
-        ImGuiEx.Text(P.Enabled ? ImGuiColors.ParsedGreen : ImGuiColors.DalamudRed, P.Enabled ? "enabled" : "disabled");
+        ImGuiEx.Text(P.Enabled ? ImGuiColors.ParsedGreen : ImGuiColors.DalamudRed, P.Enabled ? Loc.StateEnabled : Loc.StateDisabled);
         ImGui.SameLine(0, 0);
-        ImGuiEx.Text(", locally ");
+        ImGuiEx.Text(Loc.CurrentPluginStateLocal);
         ImGui.SameLine(0, 0);
-        ImGuiEx.Text(P.IsTerritoryEnabled() ? ImGuiColors.ParsedGreen : ImGuiColors.DalamudRed, P.IsTerritoryEnabled() ? "enabled" : "disabled");
+        ImGuiEx.Text(P.IsTerritoryEnabled() ? ImGuiColors.ParsedGreen : ImGuiColors.DalamudRed, P.IsTerritoryEnabled() ? Loc.StateEnabled : Loc.StateDisabled);
         ImGuiEx.SetNextItemFullWidth();
-        if (ImGui.BeginCombo("##terrselect", P.TerritoryNames.TryGetValue(SelectedKey, out var selected) ? selected : "Select an area..."))
+        if (ImGui.BeginCombo("##terrselect", P.TerritoryNames.TryGetValue(SelectedKey, out var selected) ? selected : Loc.SelectArea))
         {
             ImGui.SetNextItemWidth(200f);
-            ImGui.InputTextWithHint("##selectflts", "Filter", ref Filter, 50);
+            ImGui.InputTextWithHint("##selectflts", Loc.Filter, ref Filter, 50);
             ImGui.SameLine();
-            ImGui.Checkbox("Only modified", ref OnlyModded);
-            if (P.TerritoryNames.TryGetValue(Svc.ClientState.TerritoryType, out var current) && ImGui.Selectable($"Current: {current}"))
+            ImGui.Checkbox(Loc.OnlyModified, ref OnlyModded);
+            if (P.TerritoryNames.TryGetValue(Svc.ClientState.TerritoryType, out var current) && ImGui.Selectable(Loc.CurrentArea(current)))
             {
                 SelectedKey = Svc.ClientState.TerritoryType;
             }
@@ -50,31 +49,31 @@ internal static class TabTerritory
         {
             if (C.TerritoryConditions.TryGetValue(SelectedKey, out var settings))
             {
-                if (ImGui.Button("Remove custom settings"))
+                if (ImGui.Button(Loc.RemoveCustomSettings))
                 {
                     C.TerritoryConditions.Remove(SelectedKey);
                 }
-                ImGui.Checkbox("Automatic quest accept", ref settings.EnableQuestAccept);
-                ImGui.Checkbox("Automatic quest complete", ref settings.EnableQuestComplete);
-                ImGui.Checkbox("Automatic reward pick (RP) (BETA)", ref settings.EnableRewardPick);
-                ImGui.Checkbox("Automatic talk skip", ref settings.EnableTalkSkip);
-                ImGui.Checkbox("Semi-automatic request handin", ref settings.EnableRequestHandin);
-                ImGui.Checkbox("Automatic request fill (RF) (NEW!)", ref settings.EnableRequestFill);
-                ImGui.Checkbox("Automatic ESC press during cutscene", ref settings.EnableCutsceneEsc);
-                ImGui.Checkbox("Automatic cutscene skip confirmation", ref settings.EnableCutsceneSkipConfirm);
-                ImGui.Checkbox("Automatic interaction with quest-related object (IN)", ref settings.EnableAutoInteract);
-                ImGuiComponents.HelpMarker("Automatically interacts with nearby quest-related NPCs and objects.");
+                ImGui.Checkbox(Loc.AutomaticQuestAccept, ref settings.EnableQuestAccept);
+                ImGui.Checkbox(Loc.AutomaticQuestComplete, ref settings.EnableQuestComplete);
+                ImGui.Checkbox(Loc.AutomaticRewardPickBeta, ref settings.EnableRewardPick);
+                ImGui.Checkbox(Loc.AutomaticTalkSkip, ref settings.EnableTalkSkip);
+                ImGui.Checkbox(Loc.SemiAutomaticRequestHandin, ref settings.EnableRequestHandin);
+                ImGui.Checkbox(Loc.AutomaticRequestFillNew, ref settings.EnableRequestFill);
+                ImGui.Checkbox(Loc.AutomaticEscDuringCutscene, ref settings.EnableCutsceneEsc);
+                ImGui.Checkbox(Loc.AutomaticCutsceneSkipConfirmation, ref settings.EnableCutsceneSkipConfirm);
+                ImGui.Checkbox($"{Loc.AutomaticQuestObjectInteraction}（IN）", ref settings.EnableAutoInteract);
+                ImGuiComponents.HelpMarker(Loc.HelpQuestObjectInteraction);
                 ImGui.Separator();
-                ImGui.Checkbox($"Display quest target indicators", ref settings.QTIQuestEnabled);
-                ImGui.ColorEdit4($"Quest target indicator color", ref settings.QTIQuestColor, ImGuiColorEditFlags.NoInputs);
-                ImGui.Checkbox($"Quest target indicator tether", ref settings.QTIQuestTether);
+                ImGui.Checkbox(Loc.DisplayQuestTargetIndicators, ref settings.QTIQuestEnabled);
+                ImGui.ColorEdit4(Loc.QuestTargetIndicatorColor, ref settings.QTIQuestColor, ImGuiColorEditFlags.NoInputs);
+                ImGui.Checkbox(Loc.QuestTargetIndicatorTether, ref settings.QTIQuestTether);
                 ImGui.SetNextItemWidth(60f);
-                ImGui.DragFloat($"Quest target indicator thickness", ref settings.QTIQuestThickness, 0.02f, 1f, 10f);
+                ImGui.DragFloat(Loc.QuestTargetIndicatorThickness, ref settings.QTIQuestThickness, 0.02f, 1f, 10f);
             }
             else
             {
-                ImGuiEx.Text("No custom settings are present for this area.");
-                if (ImGui.Button("Create custom settings"))
+                ImGuiEx.Text(Loc.NoCustomAreaSettings);
+                if (ImGui.Button(Loc.CreateCustomSettings))
                 {
                     C.TerritoryConditions[SelectedKey] = new();
                 }
