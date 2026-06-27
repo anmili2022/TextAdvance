@@ -22,14 +22,14 @@ internal sealed class ConfigBuilder
         foreach (var section in this.sections)
         {
             ImGui.PushStyleColor(ImGuiCol.Header, ImGuiColors.DalamudGrey3);
-            ImGui.CollapsingHeader(section.Name, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.NoTreePushOnOpen);
+            var isOpen = ImGui.CollapsingHeader(section.Name, ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.NoTreePushOnOpen);
             ImGui.PopStyleColor();
 
-            if (ImGui.BeginChild($"##section-{section.Name}", new Vector2(ImGui.GetContentRegionAvail().X, 0), true))
+            if (isOpen && ImGui.BeginChild($"##section-{section.Name}", new Vector2(ImGui.GetContentRegionAvail().X, 0), true))
             {
                 section.Draw();
             }
-            ImGui.EndChild();
+            if (isOpen) ImGui.EndChild();
             ImGui.Spacing();
         }
     }
